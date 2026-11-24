@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — pre-token protocols, ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="pulse" aria-hidden="true"></div>
+    <div>
+      <h1>Token Launch Radar</h1>
+      <p class="sub">Pre-token protocols, ranked by what a token would be worth — from the snapshot's own figures.</p>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button id="tab-board" class="tab active" role="tab" aria-selected="true">Board</button>
+  <button id="tab-live" class="tab" role="tab" aria-selected="false">Live tokens</button>
+  <button id="tab-model" class="tab" role="tab" aria-selected="false">How the value is computed</button>
+</nav>
+
+<section id="view-board" class="view">
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search a protocol…" aria-label="Search protocols">
+    <select id="category" aria-label="Filter by category">
+      <option value="">All categories</option>
+    </select>
+    <select id="sort" aria-label="Sort the board">
+      <option value="rank">Sort: rank</option>
+      <option value="implied">Sort: implied value</option>
+      <option value="tvl">Sort: TVL</option>
+      <option value="growth">Sort: 7-day change</option>
+    </select>
+    <label class="check"><input id="watchlist-only" type="checkbox"> Watchlist only</label>
+  </div>
+  <p class="count" id="count"></p>
+  <div class="table-wrap">
+    <table id="board">
+      <thead>
+        <tr>
+          <th class="num">#</th>
+          <th>Protocol</th>
+          <th>Category</th>
+          <th>Chains</th>
+          <th class="num">TVL</th>
+          <th class="num">7d</th>
+          <th class="num">Implied value</th>
+          <th class="num">Age</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="hint">Click a row to open its farm plan and value breakdown.</p>
+</section>
+
+<section id="detail" class="view detail" hidden></section>
+
+<section id="view-live" class="view" hidden>
+  <p class="lede">These already trade, so the radar shows the market's own value — never a model's guess. They are set aside from the ranked board.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Protocol</th>
+          <th>Category</th>
+          <th>Chains</th>
+          <th class="num">TVL</th>
+          <th class="num">Market cap</th>
+          <th class="num">7d</th>
+        </tr>
+      </thead>
+      <tbody id="live-rows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="view-model" class="view" hidden>
+  <h2>Model radar-2</h2>
+  <p>Every row is scored by the same function. Nothing is hard-coded per name or per category: the category multiples are calibrated from the snapshot's own live-token protocols.</p>
+  <ol class="formula">
+    <li><strong>Category multiple</strong> — the category's median market-cap / TVL across the snapshot's live-token protocols (clamped 0.05–1.2). A category with fewer than 3 live samples falls back to the global median.</li>
+    <li><strong>Base</strong> — TVL × category multiple.</li>
+    <li><strong>Growth</strong> — 7-day change clamped to −50…+150%, weighted 0.6.</li>
+    <li><strong>Maturity</strong> — 0.6 + (age ÷ 730 days, capped) × 0.4. Unknown age counts as 365 days.</li>
+    <li><strong>Chains</strong> — +2% per chain, up to 5 chains (+10% max).</li>
+    <li><strong>Implied value</strong> — base × growth × maturity × chains, capped at $100T.</li>
+  </ol>
+  <h3>Calibrated multiples</h3>
+  <p class="muted">Global median market-cap / TVL: <span id="global-mult"></span>. Per-category multiples (median of the live tokens in that category):</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th class="num">Multiple</th></tr></thead>
+      <tbody id="calibration-rows"></tbody>
+    </table>
+  </div>
+  <h3>What the board covers</h3>
+  <p>The full 40-protocol watchlist (TVL ≥ $50M, no token recorded) plus the early rows: every rankable pre-token protocol below the watchlist floor, taken by TVL (the count is in the header above). Centralised exchanges and versioned pools are never ranked. Every farm plan is generated from the protocol's own record — category, chains, TVL and age — and every plan carries its cost, its time and its risk.</p>
+</section>
+
+<footer class="foot">
+  <span id="foot-source"></span>
+  <span>Model radar-2 · No network, no tracking, no prices fetched live — the whole radar runs from one sealed snapshot.</span>
+</footer>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
